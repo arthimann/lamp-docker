@@ -1,0 +1,35 @@
+version: "3.5"
+
+services:
+  httpd:
+    build:
+      context: ./httpd
+    container_name: "httpd-server"
+    ports:
+      - "8080:80"
+      - "8443:443"
+    depends_on:
+      - php
+    networks:
+      - backend
+
+  php:
+    build:
+      context: ./php
+    container_name: "php-engine"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+    restart: on-failure
+    ports:
+      - "9000:9000"
+    networks:
+      - backend
+    volumes:
+      - ./www:/usr/local/apache2/htdocs/
+
+networks:
+  backend:
